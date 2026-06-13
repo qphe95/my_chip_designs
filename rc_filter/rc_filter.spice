@@ -1,0 +1,30 @@
+* Simple RC Low-Pass Filter
+* -------------------------
+* A 1 kHz square wave is applied to a 1 kOhm + 1 nF RC filter.
+* The -3 dB corner frequency is ~159 kHz, so the 1 kHz square wave
+* is slowed at its edges but the fundamental passes through.
+
+* Input voltage source: 0 V to 1 V pulse at 1 kHz
+Vin in 0 DC 0 PULSE(0 1 0 1n 1n 500u 1ms)
+
+* RC network
+R1 in out 1k
+C1 out 0 1n
+
+* Operating point and transient analysis
+.op
+.tran 1u 5m
+
+* Save signals
+.save v(in) v(out)
+
+* Control block: run sim, write data, plot
+.control
+run
+set filetype=ascii
+write rc_filter.raw v(in) v(out)
+wrdata tran_out v(in) v(out)
+plot v(in) v(out)
+.endc
+
+.end

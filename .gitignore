@@ -1,0 +1,4 @@
+.venv/
+*.log
+*.raw
+*/tran_out

@@ -9,6 +9,7 @@ A minimal analog simulation project for the IIC-OSIC-TOOLS container.
 - `rc_filter_plot.png`: Generated plot (after running)
 - `tran_out`          : Raw numeric output from ngspice
 - `rc_filter.log`     : ngspice log file
+- `layout/`           : Magic VLSI layout files (see `layout/README.md`)
 
 ## The circuit
 
@@ -81,3 +82,44 @@ cat rc_filter.log
 # Plot results
 python3 plot_results.py
 ```
+
+
+## Generate the chip layout (optional)
+
+A starting Magic VLSI layout is provided in the `layout/` directory.  It targets
+the SkyWater 130 nm open PDK (`sky130A`).
+
+Prerequisites:
+
+1. Install the tools (Magic is now included in the top-level script):
+
+   ```bash
+   cd ~/my_chip_designs
+   ./install_xschem_ngspice_wsl.sh
+   ```
+
+2. Install the SkyWater 130 nm PDK (large download, one-time setup):
+
+   ```bash
+   cd ~/.local/src
+   git clone https://github.com/RTimothyEdwards/open_pdks.git
+   cd open_pdks
+   ./configure --enable-sky130-pdk --prefix=/usr/local
+   make
+   sudo make install
+   ```
+
+Generate the `.mag` and `.gds` files:
+
+```bash
+cd ~/my_chip_designs/rc_filter/layout
+./run_layout.sh
+```
+
+Open the layout:
+
+```bash
+magic rc_filter.mag
+```
+
+See `layout/README.md` for details and design notes.

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
 # install_xschem_ngspice_wsl.sh
-# Installs xschem (schematic capture) and ngspice (circuit simulator) on WSL.
+# Installs xschem (schematic capture), ngspice (circuit simulator), and
+# Magic (VLSI layout editor) on WSL.
 # Supports Debian/Ubuntu. Other distros fall back to source builds.
 #
 set -euo pipefail
@@ -60,6 +61,7 @@ install_build_deps_debian() {
         libxrender-dev tcl-dev tk-dev \
         libcairo2-dev libjpeg-dev zlib1g-dev flex bison libreadline-dev \
         libncurses-dev libngspice0-dev libblas-dev liblapack-dev \
+        libglu1-mesa-dev libgl1-mesa-dev mesa-common-dev \
         wget curl ca-certificates
 }
 
@@ -71,6 +73,7 @@ install_build_deps_rhel() {
         libX11-devel libXpm-devel libXext-devel libXft-devel fontconfig-devel \
         libXrender-devel tcl-devel tk-devel cairo-devel libjpeg-turbo-devel \
         zlib-devel flex bison readline-devel ncurses-devel \
+        mesa-libGLU-devel mesa-libGL-devel \
         wget curl blas-devel lapack-devel
 }
 
@@ -234,6 +237,72 @@ install_xschem() {
 }
 
 # -----------------------------------------------------------------------------
+# Magic installation
+# -----------------------------------------------------------------------------
+install_magic_from_package() {
+    log_info "Attempting to install Magic via package manager..."
+    local distro
+    distro=$(detect_distro)
+    case "$distro" in
+        ubuntu|debian|linuxmint|pop)
+            sudo apt-get install -y magic
+            ;;
+        fedora)
+            sudo dnf install -y magic
+            ;;
+        opensuse*)
+            sudo zypper install -y magic
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+build_magic_from_source() {
+    log_info "Building Magic from source..."
+    local src_dir="$BUILD_DIR/magic"
+
+    mkdir -p "$BUILD_DIR"
+    cd "$BUILD_DIR"
+
+    if [[ ! -d "$src_dir" ]]; then
+        git clone https://github.com/RTimothyEdwards/magic.git "$src_dir"
+    fi
+
+    cd "$src_dir"
+    git pull
+
+    ./configure \
+        --prefix="$INSTALL_PREFIX"
+
+    make -j"$(nproc)"
+    sudo make install
+    sudo ldconfig
+}
+
+install_magic() {
+    if command_exists magic; then
+        log_info "Magic already installed: $(magic --version 2>&1 | head -1)"
+        return 0
+    fi
+
+    if [[ "$USE_PACKAGE_MANAGER" == "auto" || "$USE_PACKAGE_MANAGER" == "only" ]]; then
+        if install_magic_from_package; then
+            log_info "Magic installed from package manager."
+            return 0
+        fi
+    fi
+
+    if [[ "$USE_PACKAGE_MANAGER" == "only" ]]; then
+        log_error "Package-manager install failed and USE_PACKAGE_MANAGER=only."
+        return 1
+    fi
+
+    build_magic_from_source
+}
+
+# -----------------------------------------------------------------------------
 # Post-install: set up xschem environment
 # -----------------------------------------------------------------------------
 setup_xschem_env() {
@@ -261,7 +330,7 @@ EOF
 # Main
 # -----------------------------------------------------------------------------
 main() {
-    log_info "Installing xschem + ngspice on WSL..."
+    log_info "Installing xschem + ngspice + magic on WSL..."
     log_info "Detected distro: $(detect_distro)"
 
     fix_wsl_apt_hang
@@ -278,6 +347,7 @@ main() {
     install_build_deps
     install_ngspice
     install_xschem
+    install_magic
     setup_xschem_env
 
     log_info "Installation complete. Verifying binaries..."
@@ -285,6 +355,8 @@ main() {
     command -v ngspice && ngspice --version 2>&1 | head -3 || log_warn "ngspice not in PATH"
     echo "---"
     command -v xschem && xschem --version 2>&1 | head -3 || log_warn "xschem not in PATH"
+    echo "---"
+    command -v magic && magic --version 2>&1 | head -3 || log_warn "magic not in PATH"
     echo "---"
     log_info "Please restart your shell or run: source ~/.bashrc"
 }

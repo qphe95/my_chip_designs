@@ -1,0 +1,52 @@
+magic
+tech sky130A
+timestamp 1781394734
+<< poly >>
+rect 100 200 102 260
+rect 100 260 160 262
+rect 158 200 160 260
+<< locali >>
+rect 98 198 104 204
+rect 156 198 162 204
+<< licon >>
+rect 98 198 104 204
+rect 156 198 162 204
+<< metal1 >>
+rect 80 198 104 250
+rect 156 198 180 204
+<< mcon >>
+rect 80 198 104 204
+rect 156 198 180 204
+<< metal2 >>
+rect 156 198 180 204
+rect 156 198 340 204
+<< via >>
+rect 156 198 180 204
+<< metal3 >>
+rect 300 150 700 550
+rect 320 170 340 210
+<< via2 >>
+rect 320 170 340 210
+<< metal4 >>
+rect 320 170 360 210
+rect 640 490 680 530
+<< via3 >>
+rect 320 170 360 210
+rect 640 490 680 530
+<< metal5 >>
+rect 50 50 150 150
+rect 50 600 150 700
+rect 640 490 680 530
+rect 750 300 850 400
+<< capm >>
+rect 302 152 698 548
+<< cap2m >>
+rect 302 152 698 548
+<< labels >>
+rlabel metal1 80 198 104 204 1 Vin
+rlabel metal2 156 198 180 204 1 Vout
+rlabel metal5 640 490 680 530 1 GND
+rlabel metal5 50 50 150 150 1 Vin
+rlabel metal5 50 600 150 700 1 Vout
+rlabel metal5 750 300 850 400 1 GND
+<< end >>

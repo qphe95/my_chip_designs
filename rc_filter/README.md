@@ -7,9 +7,11 @@ A minimal analog simulation project for the IIC-OSIC-TOOLS container.
 - `rc_filter.spice`   : SPICE netlist for an RC low-pass filter
 - `plot_results.py`   : Python script to plot the transient output
 - `rc_filter_plot.png`: Generated plot (after running)
+- `rc_filter_layout.png`: Rendered chip layout image (generated in `layout/`)
 - `tran_out`          : Raw numeric output from ngspice
 - `rc_filter.log`     : ngspice log file
 - `layout/`           : Magic VLSI layout files (see `layout/README.md`)
+- `align/`            : ALIGN automatic analog layout input (optional)
 
 ## The circuit
 
@@ -113,10 +115,36 @@ cd ~/my_chip_designs/rc_filter/layout
 ./run_layout.sh
 ```
 
-Open the layout:
+Render a PNG image of the layout (no X server required):
+
+```bash
+python3 render_layout.py
+```
+
+Open the layout interactively in Magic:
 
 ```bash
 magic rc_filter.mag
 ```
 
 See `layout/README.md` for details and design notes.
+
+## Generate the layout with ALIGN (optional, experimental)
+
+ALIGN is an open-source analog layout generator. To install it:
+
+```bash
+cd ~/my_chip_designs
+INSTALL_ALIGN=yes ./setup_env.sh
+```
+
+Then generate the RC filter layout automatically:
+
+```bash
+cd ~/my_chip_designs/rc_filter/align
+./run_align.sh
+```
+
+Outputs appear in `align/work/`. This flow is experimental: ALIGN's sky130
+passive-device generators are simplified, so you should verify the resulting
+layout with Magic DRC and Netgen LVS before considering it tape-out ready.

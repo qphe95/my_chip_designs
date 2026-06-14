@@ -1,52 +1,50 @@
 magic
 tech sky130A
-timestamp 1781394734
+timestamp 1781409857
+<< checkpaint >>
+rect -605 905 705 980
+rect -605 830 980 905
+rect -605 -480 1055 830
+rect -605 -555 980 -480
+rect -605 -605 705 -555
 << poly >>
-rect 100 200 102 260
-rect 100 260 160 262
-rect 158 200 160 260
-<< locali >>
-rect 98 198 104 204
-rect 156 198 162 204
-<< licon >>
-rect 98 198 104 204
-rect 156 198 162 204
+rect 50 130 80 131
+rect 50 102 51 130
+rect 79 102 80 130
+<< polycont >>
+rect 49 99 52 102
+rect 78 99 81 102
+<< viali >>
+rect 40 99 49 102
+rect 49 99 52 102
+rect 78 99 81 102
+rect 81 99 90 102
 << metal1 >>
-rect 80 198 104 250
-rect 156 198 180 204
-<< mcon >>
-rect 80 198 104 204
-rect 156 198 180 204
+rect 40 102 52 125
+<< via1 >>
+rect 78 99 90 102
 << metal2 >>
-rect 156 198 180 204
-rect 156 198 340 204
-<< via >>
-rect 156 198 180 204
-<< metal3 >>
-rect 300 150 700 550
-rect 320 170 340 210
+rect 90 99 160 102
 << via2 >>
-rect 320 170 340 210
-<< metal4 >>
-rect 320 170 360 210
-rect 640 490 680 530
+rect 160 85 170 105
+<< metal3 >>
+rect 150 265 350 275
+rect 150 245 320 265
+rect 340 245 350 265
+rect 150 105 350 245
+rect 150 85 160 105
+rect 180 85 350 105
+rect 150 75 350 85
 << via3 >>
-rect 320 170 360 210
-rect 640 490 680 530
+rect 320 245 340 265
+rect 160 85 170 105
+rect 170 85 180 105
+<< mimcap >>
+rect 151 76 349 274
+<< via4 >>
+rect 320 245 340 265
 << metal5 >>
-rect 50 50 150 150
-rect 50 600 150 700
-rect 640 490 680 530
-rect 750 300 850 400
-<< capm >>
-rect 302 152 698 548
-<< cap2m >>
-rect 302 152 698 548
-<< labels >>
-rlabel metal1 80 198 104 204 1 Vin
-rlabel metal2 156 198 180 204 1 Vout
-rlabel metal5 640 490 680 530 1 GND
-rlabel metal5 50 50 150 150 1 Vin
-rlabel metal5 50 600 150 700 1 Vout
-rlabel metal5 750 300 850 400 1 GND
+rect 25 300 75 350
+rect 375 150 425 200
+rect 25 25 75 75
 << end >>

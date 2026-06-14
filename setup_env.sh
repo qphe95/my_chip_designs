@@ -2,8 +2,12 @@
 #
 # setup_env.sh
 # Installs xschem (schematic capture), ngspice (circuit simulator),
-# Magic (VLSI layout editor), and the SkyWater 130 nm open PDK on WSL.
+# Magic (VLSI layout editor), the SkyWater 130 nm open PDK, and (optionally)
+# ALIGN (open-source analog layout generator) on WSL.
 # Supports Debian/Ubuntu. Other distros fall back to source builds.
+#
+# Optional environment variables:
+#   INSTALL_ALIGN=yes       # also build and install ALIGN
 #
 set -euo pipefail
 
@@ -14,6 +18,7 @@ INSTALL_PREFIX="${INSTALL_PREFIX:-/usr/local}"
 BUILD_DIR="${BUILD_DIR:-$HOME/.local/src/xschem_ngspice_build}"
 USE_PACKAGE_MANAGER="${USE_PACKAGE_MANAGER:-auto}"   # auto | only | no
 INSTALL_SKY130_PDK="${INSTALL_SKY130_PDK:-yes}"      # yes | no
+INSTALL_ALIGN="${INSTALL_ALIGN:-no}"                 # yes | no (builds ALIGN analog P&R from source)
 
 # Ensure locally-built tools take precedence over distro packages.
 export PATH="$INSTALL_PREFIX/bin:$PATH"
@@ -455,6 +460,121 @@ PY
 }
 
 # -----------------------------------------------------------------------------
+# ALIGN analog layout generator installation
+# -----------------------------------------------------------------------------
+install_align_build_deps() {
+    log_info "Installing ALIGN build dependencies..."
+    local distro
+    distro=$(detect_distro)
+    case "$distro" in
+        ubuntu|debian|linuxmint|pop)
+            sudo apt-get install -y \
+                cmake ninja-build python3-venv python3-dev \
+                libboost-all-dev lp-solve liblpsolve55-dev
+            ;;
+        fedora|rhel|centos|rocky|almalinux)
+            sudo dnf install -y \
+                cmake ninja-build python3-virtualenv python3-devel \
+                boost-devel lp_solve lp_solve-devel
+            ;;
+        *)
+            log_warn "Unknown distro '$distro'. Attempting Debian-style ALIGN deps."
+            sudo apt-get install -y \
+                cmake ninja-build python3-venv python3-dev \
+                libboost-all-dev lp-solve liblpsolve55-dev || true
+            ;;
+    esac
+}
+
+install_align() {
+    if [[ "$INSTALL_ALIGN" != "yes" ]]; then
+        log_info "Skipping ALIGN install (INSTALL_ALIGN=$INSTALL_ALIGN)."
+        return 0
+    fi
+
+    if command_exists schematic2layout.py; then
+        log_info "ALIGN already installed: $(schematic2layout.py -h 2>&1 | head -1)"
+        return 0
+    fi
+
+    log_info "Installing ALIGN analog layout generator..."
+    log_warn "This clones and builds ALIGN from source. It may take 15-30 minutes."
+
+    install_align_build_deps
+
+    local align_src="$BUILD_DIR/ALIGN-public"
+    local pdk_src="$BUILD_DIR/ALIGN-pdk-sky130"
+    local venv_dir="$INSTALL_PREFIX/venv-align"
+
+    mkdir -p "$BUILD_DIR"
+    cd "$BUILD_DIR"
+
+    # Clone ALIGN source and sky130 PDK adapter
+    if [[ ! -d "$align_src" ]]; then
+        git clone --recursive https://github.com/ALIGN-analoglayout/ALIGN-public.git "$align_src"
+    fi
+    if [[ ! -d "$pdk_src" ]]; then
+        git clone https://github.com/ALIGN-analoglayout/ALIGN-pdk-sky130.git "$pdk_src"
+    fi
+
+    # Create a dedicated Python venv for ALIGN
+    python3 -m venv "$venv_dir"
+    # shellcheck source=/dev/null
+    source "$venv_dir/bin/activate"
+
+    pip install --upgrade pip setuptools wheel
+
+    # Install ALIGN's Python dependencies. Some version pins are relaxed so the
+    # install works on newer distributions (e.g. Python 3.12).
+    pip install \
+        pybind11 scikit-build cmake ninja \
+        'networkx>=2.4' python-gdsii gdspy pyyaml \
+        'pydantic>=1.9.2,<2' z3-solver mip more-itertools \
+        colorlog plotly numpy pandas werkzeug dash \
+        typing_extensions memory_profiler flatdict \
+        pytest pytest-cov pytest-xdist pytest-timeout \
+        pytest-rerunfailures pytest-cpp
+
+    # Build and install ALIGN. Use pip install (not editable) so the wrapper
+    # scripts are placed in the venv bin directory.
+    cd "$align_src"
+    pip install -v .
+
+    deactivate
+
+    # Create a system wrapper that activates the ALIGN venv.
+    sudo tee "$INSTALL_PREFIX/bin/schematic2layout.py" >/dev/null <<EOF
+#!/usr/bin/env bash
+# Wrapper for ALIGN's schematic2layout.py. Activates the ALIGN venv.
+source "$venv_dir/bin/activate"
+exec "$venv_dir/bin/schematic2layout.py" "\$@"
+EOF
+    sudo chmod +x "$INSTALL_PREFIX/bin/schematic2layout.py"
+
+    # Create an environment setup snippet for the user's shell.
+    local shell_rc="$HOME/.bashrc"
+    [[ "$SHELL" == */zsh ]] && shell_rc="$HOME/.zshrc"
+    local marker="# ALIGN environment"
+    if ! grep -q "$marker" "$shell_rc" 2>/dev/null; then
+        cat >> "$shell_rc" <<EOF
+
+$marker
+export ALIGN_HOME="$align_src"
+export ALIGN_PDK_SKY130="$pdk_src/SKY130_PDK"
+export PATH="$INSTALL_PREFIX/bin:\$PATH"
+EOF
+        log_info "Added ALIGN environment variables to $shell_rc"
+    fi
+
+    if command_exists schematic2layout.py; then
+        log_info "ALIGN installed successfully."
+    else
+        log_error "ALIGN install failed; schematic2layout.py not found in PATH."
+        return 1
+    fi
+}
+
+# -----------------------------------------------------------------------------
 # Post-install: set up xschem environment
 # -----------------------------------------------------------------------------
 setup_xschem_env() {
@@ -501,6 +621,7 @@ main() {
     install_xschem
     install_magic
     install_sky130_pdk
+    install_align
     setup_xschem_env
 
     log_info "Installation complete. Verifying binaries..."
@@ -517,6 +638,10 @@ main() {
         log_warn "Sky130 PDK not found at $(sky130_tech_file)"
     fi
     echo "---"
+    if [[ "$INSTALL_ALIGN" == "yes" ]]; then
+        command -v schematic2layout.py && schematic2layout.py -h 2>&1 | head -3 || log_warn "schematic2layout.py not in PATH"
+        echo "---"
+    fi
     log_info "Please restart your shell or run: source ~/.bashrc"
 }
 

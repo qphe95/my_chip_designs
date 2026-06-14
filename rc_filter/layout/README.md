@@ -9,9 +9,12 @@ RC low-pass filter in `rc_filter.spice`.
   a 10 pF MIM capacitor, routing, and probe pads.
 - `run_layout.sh` — Convenience script that checks for Magic + sky130A and runs
   `generate_layout.tcl`.
+- `render_layout.py` — Renders `rc_filter.mag` to a PNG using matplotlib
+  (works without an X server).
 - `rc_filter.mag` — Pre-generated Magic layout cell.  Re-created by
   `generate_layout.tcl` when you run the script.
 - `rc_filter.gds` — Generated GDSII stream file (created after running the script).
+- `rc_filter_layout.png` — Rendered layout image produced by `render_layout.py`.
 
 ## Prerequisites
 
@@ -39,6 +42,14 @@ cd ~/my_chip_designs/rc_filter/layout
 ```
 
 This produces `rc_filter.mag` and `rc_filter.gds`.
+
+## Render a PNG of the layout
+
+```bash
+python3 render_layout.py
+```
+
+This creates `rc_filter_layout.png` without needing a display or X server.
 
 ## Open the layout in Magic
 

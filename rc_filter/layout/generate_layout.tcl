@@ -13,20 +13,28 @@
 #   - Ground connection for the capacitor bottom plate
 #   - Labels for Vin, Vout, GND
 
-# Load sky130A technology. If this fails, the PDK is not installed.
-if {[catch {tech load sky130A} err]} {
-    puts stderr "ERROR: Could not load sky130A technology."
+# Set up the PDK path and source the PDK magicrc so the sky130A tech file is found.
+set PDKPATH "/usr/local/share/pdk/sky130A"
+if {![file exists "$PDKPATH/libs.tech/magic/sky130A.tech"]} {
+    puts stderr "ERROR: Could not find sky130A technology at $PDKPATH"
     puts stderr "Please install the SkyWater 130 nm PDK, for example:"
-    puts stderr "  cd ~/.local/src"
-    puts stderr "  git clone https://github.com/RTimothyEdwards/open_pdks.git"
-    puts stderr "  cd open_pdks"
-    puts stderr "  ./configure --enable-sky130-pdk --prefix=/usr/local"
-    puts stderr "  make"
-    puts stderr "  sudo make install"
+    puts stderr "  cd ~/my_chip_designs"
+    puts stderr "  ./setup_env.sh"
     exit 1
+}
+source "$PDKPATH/libs.tech/magic/sky130A.magicrc"
+
+# Remove any previous layout so cellname create works.
+catch {cellname delete rc_filter}
+if {[file exists rc_filter.mag]} {
+    file delete rc_filter.mag
+}
+if {[file exists rc_filter.gds]} {
+    file delete rc_filter.gds
 }
 
 cellname create rc_filter
+load rc_filter
 snap internal
 
 # Coordinates are in Magic internal units for sky130A (1 unit = 1 lambda = 0.005 um).
@@ -44,27 +52,24 @@ paint poly
 
 # Contacts from resistor ends to local interconnect (li)
 box 98 198 104 204
-paint licon
+paint pc
 box 98 198 104 204
 paint li
 box 156 198 162 204
-paint licon
+paint pc
 box 156 198 162 204
 paint li
 
-# --- Capacitor C1: MIM cap (capm between met3 and cap2m) ------------------
-# Sky130 MIM density ~2 fF/um^2.  A real 1 nF cap would be ~707 um x 707 um.
-# This educational layout draws a small symbolic cap and documents the issue.
+# --- Capacitor C1: MIM cap (capm top plate over met3 bottom plate) ---------
+# Sky130 MIM density ~2 fF/um^2.  A 10 pF cap is ~70 um x 70 um.
 
 # Bottom plate on met3
 box 300 150 700 550
 paint met3
 
-# MIM top plate
+# MIM top plate (capm)
 box 302 152 698 548
 paint capm
-box 302 152 698 548
-paint cap2m
 
 # Top-plate contact up to met4 for Vout connection
 box 320 170 360 210
@@ -135,7 +140,14 @@ label GND pad met5 750 300 850 400
 
 # --- Save outputs -----------------------------------------------------------
 save rc_filter.mag
+
+catch {
+    gds readonly false
+    gds rescale false
+}
 gds write rc_filter.gds
 puts "Layout saved to rc_filter.mag and rc_filter.gds"
 
+# Print a summary of the layout extents
+box
 quit

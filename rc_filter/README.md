@@ -92,22 +92,18 @@ the SkyWater 130 nm open PDK (`sky130A`).
 
 Prerequisites:
 
-1. Install the tools (Magic is now included in the top-level script):
+1. Install the tools and PDK (Magic and the full SkyWater 130 nm PDK are now
+   included in the top-level script):
 
    ```bash
    cd ~/my_chip_designs
-   ./install_xschem_ngspice_wsl.sh
+   ./setup_env.sh
    ```
 
-2. Install the SkyWater 130 nm PDK (large download, one-time setup):
+   To skip the PDK install entirely:
 
    ```bash
-   cd ~/.local/src
-   git clone https://github.com/RTimothyEdwards/open_pdks.git
-   cd open_pdks
-   ./configure --enable-sky130-pdk --prefix=/usr/local
-   make
-   sudo make install
+   INSTALL_SKY130_PDK=no ./setup_env.sh
    ```
 
 Generate the `.mag` and `.gds` files:

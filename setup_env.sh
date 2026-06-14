@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# install_xschem_ngspice_wsl.sh
-# Installs xschem (schematic capture), ngspice (circuit simulator), and
-# Magic (VLSI layout editor) on WSL.
+# setup_env.sh
+# Installs xschem (schematic capture), ngspice (circuit simulator),
+# Magic (VLSI layout editor), and the SkyWater 130 nm open PDK on WSL.
 # Supports Debian/Ubuntu. Other distros fall back to source builds.
 #
 set -euo pipefail
@@ -13,6 +13,10 @@ set -euo pipefail
 INSTALL_PREFIX="${INSTALL_PREFIX:-/usr/local}"
 BUILD_DIR="${BUILD_DIR:-$HOME/.local/src/xschem_ngspice_build}"
 USE_PACKAGE_MANAGER="${USE_PACKAGE_MANAGER:-auto}"   # auto | only | no
+INSTALL_SKY130_PDK="${INSTALL_SKY130_PDK:-yes}"      # yes | no
+
+# Ensure locally-built tools take precedence over distro packages.
+export PATH="$INSTALL_PREFIX/bin:$PATH"
 
 # Colors for output
 RED='\033[0;31m'
@@ -38,6 +42,16 @@ detect_distro() {
 
 command_exists() {
     command -v "$1" >/dev/null 2>&1
+}
+
+# Compare two dotted version strings. Returns 0 if $1 >= $2.
+version_ge() {
+    local v1 v2
+    # Normalize to three numeric components (e.g., 8.3 -> 8.3.0)
+    v1=$(echo "$1" | awk -F. '{printf "%d.%d.%d", $1, $2, ($3==""?0:$3)}')
+    v2=$(echo "$2" | awk -F. '{printf "%d.%d.%d", $1, $2, ($3==""?0:$3)}')
+    # If v1 >= v2, then sorting [v2, v1] is already in ascending order.
+    printf '%s\n%s\n' "$v2" "$v1" | sort -V -C
 }
 
 # WSL sometimes has trouble with IPv6 during apt update.
@@ -259,6 +273,24 @@ install_magic_from_package() {
     esac
 }
 
+remove_old_magic_package() {
+    log_info "Removing old distro magic package to avoid conflicts..."
+    local distro
+    distro=$(detect_distro)
+    case "$distro" in
+        ubuntu|debian|linuxmint|pop)
+            if dpkg -l magic 2>/dev/null | grep -q '^ii'; then
+                sudo apt-get remove -y magic || true
+            fi
+            ;;
+        fedora|rhel|centos|rocky|almalinux)
+            if rpm -q magic >/dev/null 2>&1; then
+                sudo dnf remove -y magic || true
+            fi
+            ;;
+    esac
+}
+
 build_magic_from_source() {
     log_info "Building Magic from source..."
     local src_dir="$BUILD_DIR/magic"
@@ -273,6 +305,9 @@ build_magic_from_source() {
     cd "$src_dir"
     git pull
 
+    # Clean previous build state if any
+    make clean >/dev/null 2>&1 || true
+
     ./configure \
         --prefix="$INSTALL_PREFIX"
 
@@ -281,25 +316,112 @@ build_magic_from_source() {
     sudo ldconfig
 }
 
-install_magic() {
-    if command_exists magic; then
-        log_info "Magic already installed: $(magic --version 2>&1 | head -1)"
-        return 0
-    fi
+magic_version() {
+    # "Magic 8.3 revision 105" -> "8.3.105"
+    magic --version 2>&1 | head -1 | sed -E 's/.*Magic ([0-9]+)\.([0-9]+) revision ([0-9]+).*/\1.\2.\3/'
+}
 
-    if [[ "$USE_PACKAGE_MANAGER" == "auto" || "$USE_PACKAGE_MANAGER" == "only" ]]; then
-        if install_magic_from_package; then
-            log_info "Magic installed from package manager."
+install_magic() {
+    local required="8.3.411"
+    local current
+
+    if command_exists magic; then
+        current=$(magic_version)
+        if version_ge "$current" "$required"; then
+            log_info "Magic $current already installed (>= $required required)."
             return 0
+        else
+            log_warn "Magic $current is too old; sky130 PDK requires >= $required."
         fi
     fi
 
-    if [[ "$USE_PACKAGE_MANAGER" == "only" ]]; then
-        log_error "Package-manager install failed and USE_PACKAGE_MANAGER=only."
+    # The Ubuntu/Debian magic package is too old for the current sky130 PDK.
+    # Remove it and build a current version from source.
+    remove_old_magic_package
+    build_magic_from_source
+
+    # Verify the new binary is usable.
+    current=$(magic_version)
+    if ! version_ge "$current" "$required"; then
+        log_error "Magic source build failed: got $current, need >= $required"
         return 1
     fi
+    log_info "Magic $current built and installed from source."
+}
 
-    build_magic_from_source
+# -----------------------------------------------------------------------------
+# SkyWater 130 nm PDK installation
+# -----------------------------------------------------------------------------
+sky130_tech_file() {
+    echo "$INSTALL_PREFIX/share/pdk/sky130A/libs.tech/magic/sky130A.tech"
+}
+
+install_sky130_pdk() {
+    local tech_file
+    tech_file=$(sky130_tech_file)
+
+    if [[ -f "$tech_file" ]]; then
+        log_info "SkyWater 130 nm PDK already installed: $tech_file"
+        return 0
+    fi
+
+    if [[ "$INSTALL_SKY130_PDK" != "yes" ]]; then
+        log_info "Skipping SkyWater 130 nm PDK install (INSTALL_SKY130_PDK=$INSTALL_SKY130_PDK)"
+        return 0
+    fi
+
+    log_info "Installing SkyWater 130 nm PDK via open_pdks..."
+    log_warn "This downloads several GB and may take 30-60 minutes."
+
+    mkdir -p "$BUILD_DIR"
+    cd "$BUILD_DIR"
+
+    local src_dir="$BUILD_DIR/open_pdks"
+    local tag="${OPEN_PDKS_TAG:-1.0.99}"
+
+    if [[ ! -d "$src_dir" ]]; then
+        git clone https://github.com/RTimothyEdwards/open_pdks.git "$src_dir"
+    fi
+
+    cd "$src_dir"
+    git fetch --tags
+    git checkout "$tag"
+
+    # Patch foundry_install.py to enable 'gds ordering on' before reading GDS.
+    # This prevents Magic from crashing on GDS files where cells are referenced
+    # before they are defined (common in the sky130 I/O library).
+    python3 - <<PY
+import re
+with open("$src_dir/common/foundry_install.py", "r") as f:
+    content = f.read()
+
+# Add 'gds ordering on' after 'gds rescale false' in GDS-to-mag scripts
+old = "print('gds rescale false', file=ofile)"
+new = "print('gds rescale false', file=ofile)\n                    print('gds ordering on', file=ofile)"
+content = content.replace(old, new)
+
+with open("$src_dir/common/foundry_install.py", "w") as f:
+    f.write(content)
+PY
+
+    # Use system Python (not a venv) because open_pdks configure needs distutils.
+    PYTHON=/usr/bin/python3 ./configure \
+        --enable-sky130-pdk \
+        --prefix="$INSTALL_PREFIX"
+
+    # Clean previous partial build so stale generated files are regenerated
+    # with the correct Magic version.
+    make clean >/dev/null 2>&1 || true
+
+    make -j"$(nproc)"
+    sudo make install
+
+    if [[ -f "$tech_file" ]]; then
+        log_info "SkyWater 130 nm PDK installed successfully."
+    else
+        log_error "SkyWater 130 nm PDK install may have failed; $tech_file not found."
+        return 1
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -330,7 +452,7 @@ EOF
 # Main
 # -----------------------------------------------------------------------------
 main() {
-    log_info "Installing xschem + ngspice + magic on WSL..."
+    log_info "Installing xschem + ngspice + magic + sky130 PDK on WSL..."
     log_info "Detected distro: $(detect_distro)"
 
     fix_wsl_apt_hang
@@ -348,6 +470,7 @@ main() {
     install_ngspice
     install_xschem
     install_magic
+    install_sky130_pdk
     setup_xschem_env
 
     log_info "Installation complete. Verifying binaries..."
@@ -357,6 +480,12 @@ main() {
     command -v xschem && xschem --version 2>&1 | head -3 || log_warn "xschem not in PATH"
     echo "---"
     command -v magic && magic --version 2>&1 | head -3 || log_warn "magic not in PATH"
+    echo "---"
+    if [[ -f $(sky130_tech_file) ]]; then
+        log_info "Sky130 PDK OK: $(sky130_tech_file)"
+    else
+        log_warn "Sky130 PDK not found at $(sky130_tech_file)"
+    fi
     echo "---"
     log_info "Please restart your shell or run: source ~/.bashrc"
 }

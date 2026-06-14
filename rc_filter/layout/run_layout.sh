@@ -7,7 +7,7 @@ set -euo pipefail
 
 if ! command -v magic >/dev/null 2>&1; then
     echo "ERROR: Magic is not installed."
-    echo "Run: cd ~/my_chip_designs && ./install_xschem_ngspice_wsl.sh"
+    echo "Run: cd ~/my_chip_designs && ./setup_env.sh"
     exit 1
 fi
 

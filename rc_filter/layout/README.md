@@ -17,29 +17,19 @@ RC low-pass filter in `rc_filter.spice`.
 
 1. **Magic VLSI layout editor**
 
-   The top-level install script installs it automatically:
-
-   ```bash
-   cd ~/my_chip_designs
-   ./install_xschem_ngspice_wsl.sh
-   ```
+   Installed automatically by `setup_env.sh`.  The script always builds Magic
+   from source because the Ubuntu package is too old for the current sky130
+   PDK.
 
 2. **SkyWater 130 nm PDK (sky130A)**
 
-   The layout is drawn in the `sky130A` technology.  Install the PDK with
-   `open_pdks`:
+   Also installed automatically by `setup_env.sh`.  The full PDK (primitives,
+   I/O pads, and standard cells) is built.  If you want to skip the PDK install
+   entirely, run:
 
    ```bash
-   mkdir -p ~/.local/src
-   cd ~/.local/src
-   git clone https://github.com/RTimothyEdwards/open_pdks.git
-   cd open_pdks
-   ./configure --enable-sky130-pdk --prefix=/usr/local
-   make
-   sudo make install
+   INSTALL_SKY130_PDK=no ./setup_env.sh
    ```
-
-   This download is large (~several GB) and the build can take 30–60 minutes.
 
 ## Generate the layout
 

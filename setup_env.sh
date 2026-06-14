@@ -492,28 +492,37 @@ install_align() {
         return 0
     fi
 
-    if command_exists schematic2layout.py; then
-        log_info "ALIGN already installed: $(schematic2layout.py -h 2>&1 | head -1)"
+    # Use the repo-local ALIGN-public fork instead of cloning from GitHub.
+    local script_path
+    script_path=$(readlink -f "${BASH_SOURCE[0]}")
+    local repo_root
+    repo_root=$(dirname "$script_path")
+    local align_src="$repo_root/ALIGN-public"
+    local venv_dir="$align_src/.venv"
+
+    if [[ ! -d "$align_src" ]]; then
+        log_error "Local ALIGN source not found at $align_src."
+        log_error "Clone or place your ALIGN fork in $align_src and re-run."
+        return 1
+    fi
+
+    if [[ -x "$venv_dir/bin/schematic2layout.py" ]]; then
+        log_info "Local ALIGN already installed in $venv_dir."
+        log_info "Remove $venv_dir to force a rebuild from source."
         return 0
     fi
 
-    log_info "Installing ALIGN analog layout generator..."
-    log_warn "This clones and builds ALIGN from source. It may take 15-30 minutes."
+    log_info "Installing repo-local ALIGN analog layout generator..."
+    log_warn "This builds ALIGN from $align_src. It may take 15-30 minutes."
 
     install_align_build_deps
 
-    local align_src="$BUILD_DIR/ALIGN-public"
     local pdk_src="$BUILD_DIR/ALIGN-pdk-sky130"
-    # Keep the venv in the build tree so it does not need sudo to create.
-    local venv_dir="$BUILD_DIR/venv-align"
 
     mkdir -p "$BUILD_DIR"
     cd "$BUILD_DIR"
 
-    # Clone ALIGN source and sky130 PDK adapter
-    if [[ ! -d "$align_src" ]]; then
-        git clone --recursive https://github.com/ALIGN-analoglayout/ALIGN-public.git "$align_src"
-    fi
+    # Clone the sky130 PDK adapter (ALIGN-public itself is kept locally).
     if [[ ! -d "$pdk_src" ]]; then
         git clone https://github.com/ALIGN-analoglayout/ALIGN-pdk-sky130.git "$pdk_src"
     fi
@@ -555,7 +564,7 @@ with open(path, 'w') as f:
     json.dump(data, f, indent=2)
 PY
 
-    # Create a dedicated Python venv for ALIGN
+    # Create a dedicated Python venv inside the local ALIGN source tree.
     python3 -m venv "$venv_dir"
     # shellcheck source=/dev/null
     source "$venv_dir/bin/activate"
@@ -573,17 +582,27 @@ PY
         pytest pytest-cov pytest-xdist pytest-timeout \
         pytest-rerunfailures pytest-cpp
 
-    # Build and install ALIGN. Use pip install (not editable) so the wrapper
-    # scripts are placed in the venv bin directory.
+    # Build and install ALIGN in editable mode from the local source so that
+    # Python changes made to ALIGN-public are picked up without re-running
+    # setup_env.sh. Editable scikit-build installs do not copy the compiled
+    # extension next to the source, so copy it after the build finishes.
     cd "$align_src"
-    pip install -v .
+    pip install -v -e . --no-build-isolation
+
+    local built_so
+    built_so=$(find "$align_src/_skbuild" -path '*/cmake-install/align/PnR.*.so' -print -quit 2>/dev/null)
+    if [[ -n "$built_so" ]]; then
+        cp -v "$built_so" "$align_src/align/"
+    else
+        log_warn "Could not locate compiled ALIGN extension (PnR.*.so) to copy."
+    fi
 
     deactivate
 
-    # Create a system wrapper that activates the ALIGN venv.
+    # Create a system wrapper that activates the local ALIGN venv.
     sudo tee "$INSTALL_PREFIX/bin/schematic2layout.py" >/dev/null <<EOF
 #!/usr/bin/env bash
-# Wrapper for ALIGN's schematic2layout.py. Activates the ALIGN venv.
+# Wrapper for ALIGN's schematic2layout.py. Activates the repo-local ALIGN venv.
 source "$venv_dir/bin/activate"
 exec "$venv_dir/bin/schematic2layout.py" "\$@"
 EOF
@@ -605,7 +624,7 @@ EOF
     fi
 
     if command_exists schematic2layout.py; then
-        log_info "ALIGN installed successfully."
+        log_info "Local ALIGN installed successfully from $align_src."
     else
         log_error "ALIGN install failed; schematic2layout.py not found in PATH."
         return 1

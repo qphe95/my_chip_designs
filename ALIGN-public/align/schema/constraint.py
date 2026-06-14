@@ -463,6 +463,85 @@ class Boundary(HardConstraint):
 #       by certain engines
 
 
+class BoxPacking(UserConstraint):
+    '''
+    Pack a set of instances into a compact rectangular outline.
+
+    This constraint is intended for small mixed-signal building blocks such as
+    RC filters where a long, thin primitive (e.g. a high-value poly resistor)
+    would otherwise be stacked on top of a wider block, wasting area and
+    creating an extreme aspect ratio.  ``BoxPacking`` expands into a chain of
+    existing ALIGN constraints (``Order``, ``Align``, ``AspectRatio`` and
+    ``DoNotIdentify``) that force the listed instances to be placed side by
+    side and aligned on a common edge.
+
+    Args:
+        instances (list[str]): List of instances to pack.
+        direction (str): ``'horizontal'`` places instances left-to-right;
+            ``'vertical'`` places them top-to-bottom.  Default is horizontal.
+        align (str): Edge along which the instances are aligned.  For
+            horizontal packing the choices are ``'bottom'``, ``'top'`` or
+            ``'center'`` (default ``'bottom'``).  For vertical packing the
+            choices are ``'left'``, ``'right'`` or ``'center'`` (default
+            ``'left'``).
+        abut (bool): If ``True`` (default) adjoining instances are forced to
+            share an edge.
+        aspect_ratio_low (float): Lower bound on the packed block's
+            width/height ratio.
+        aspect_ratio_high (float): Upper bound on the packed block's
+            width/height ratio.
+
+    Example: ::
+
+        {
+            "constraint": "BoxPacking",
+            "instances": ["X_R1", "X_C1"],
+            "direction": "horizontal",
+            "align": "bottom",
+            "abut": true,
+            "aspect_ratio_low": 0.5,
+            "aspect_ratio_high": 2.0
+        }
+    '''
+    instances: List[str]
+    direction: Literal['horizontal', 'vertical'] = 'horizontal'
+    align: Optional[Literal['bottom', 'top', 'left', 'right', 'center']] = None
+    abut: bool = True
+    aspect_ratio_low: float = 0.5
+    aspect_ratio_high: float = 2.0
+    _instance_attribute: str = "instances"
+
+    @types.validator('instances', allow_reuse=True)
+    def boxpacking_instances_validator(cls, value):
+        assert len(value) >= 2, 'BoxPacking must contain at least two instances'
+        return validate_instances(cls, value)
+
+    def yield_constraints(self):
+        with set_context(self._parent):
+            if self.direction == 'horizontal':
+                order_dir = 'left_to_right'
+                default_align = 'bottom'
+                line_map = {
+                    'bottom': 'h_bottom',
+                    'top': 'h_top',
+                    'center': 'h_center',
+                }
+            else:
+                order_dir = 'top_to_bottom'
+                default_align = 'left'
+                line_map = {
+                    'left': 'v_left',
+                    'right': 'v_right',
+                    'center': 'v_center',
+                }
+            line = line_map.get(self.align or default_align)
+            yield Order(instances=self.instances, direction=order_dir, abut=self.abut)
+            if line:
+                yield Align(instances=self.instances, line=line)
+            yield AspectRatio(ratio_low=self.aspect_ratio_low, ratio_high=self.aspect_ratio_high)
+            yield DoNotIdentify(instances=self.instances)
+
+
 class AlignInOrder(UserConstraint):
     '''
     Align `instances` on `line` ordered along `direction`
@@ -1476,6 +1555,7 @@ ConstraintType = Union[
     Boundary,
     # Additional User constraints
     AlignInOrder,
+    BoxPacking,
     # Legacy Align constraints
     # (SoftConstraints)
     CompactPlacement,

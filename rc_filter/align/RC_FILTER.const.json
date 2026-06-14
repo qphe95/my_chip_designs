@@ -1,0 +1,11 @@
+[
+  {
+    "constraint": "BoxPacking",
+    "instances": ["X_R1", "X_C1"],
+    "direction": "horizontal",
+    "align": "bottom",
+    "abut": true,
+    "aspect_ratio_low": 0.5,
+    "aspect_ratio_high": 2.0
+  }
+]

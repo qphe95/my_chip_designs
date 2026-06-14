@@ -18,10 +18,22 @@ import subprocess
 # Directory containing this script and the custom generator modules.
 CUSTOM_PDK_DIR = pathlib.Path(__file__).resolve().parent
 
+# Repo root is two levels above this script (align_pdk_sky130_custom/ under root).
+REPO_ROOT = CUSTOM_PDK_DIR.parent
+
 # Default installed Sky130 PDK adapter location.
 DEFAULT_INSTALLED_PDK = pathlib.Path.home() / (
     ".local/src/xschem_ngspice_build/ALIGN-pdk-sky130/SKY130_PDK"
 )
+
+
+def _find_schematic2layout():
+    """Prefer the repo-local ALIGN venv; fall back to PATH."""
+    local_venv = REPO_ROOT / "ALIGN-public" / ".venv"
+    local_bin = local_venv / "bin" / "schematic2layout.py"
+    if local_bin.is_file():
+        return str(local_bin)
+    return "schematic2layout.py"
 
 
 def _inject_pdk_path(argv, tmp_pdk):
@@ -97,7 +109,7 @@ def main(argv=None):
         env = os.environ.copy()
         env["ALIGN_PDK_SKY130"] = str(tmp_pdk)
 
-        cmd = ["schematic2layout.py"] + _inject_pdk_path(argv, tmp_pdk)
+        cmd = [_find_schematic2layout()] + _inject_pdk_path(argv, tmp_pdk)
         print(f"Running ALIGN with custom PDK overlay: {tmp_pdk}")
         print(f"  installed base: {installed_pdk}")
         print(f"  custom files:   {CUSTOM_PDK_DIR}")

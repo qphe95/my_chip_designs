@@ -11,15 +11,17 @@ This directory contains inputs for the [ALIGN](https://github.com/ALIGN-analogla
 
 ## Prerequisites
 
-ALIGN is installed by default when you run `setup_env.sh`. To skip it:
+ALIGN is installed by default when you run `setup_env.sh`. The setup script
+builds the repo-local `ALIGN-public` fork (it no longer clones ALIGN from
+GitHub). To skip it:
 
 ```bash
 cd ~/my_chip_designs
 INSTALL_ALIGN=no ./setup_env.sh
 ```
 
-This clones and builds ALIGN-public plus the ALIGN-pdk-sky130 adapter, and
-adds `schematic2layout.py` to your PATH.
+This builds the local `ALIGN-public` source plus the ALIGN-pdk-sky130 adapter,
+and adds `schematic2layout.py` to your PATH.
 
 ## Generate the layout
 

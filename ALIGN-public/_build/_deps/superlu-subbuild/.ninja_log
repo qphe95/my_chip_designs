@@ -1,0 +1,21 @@
+# ninja log v7
+0	5	1781465169607166616	superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-mkdir	cd0a87ab9babe925
+0	5	1781465169607166616	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/superlu-subbuild/superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-mkdir	cd0a87ab9babe925
+5	1769	1781465171371459044	superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-download	c4fba51215efda01
+5	1769	1781465171371459044	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/superlu-subbuild/superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-download	c4fba51215efda01
+1769	1776	1781465171371459044	superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-update	3dc420780ff94f10
+1769	1776	1781465171371459044	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/superlu-subbuild/superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-update	3dc420780ff94f10
+1776	1781	1781465171381504097	superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-patch	eea2b181320f01ce
+1776	1781	1781465171381504097	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/superlu-subbuild/superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-patch	eea2b181320f01ce
+1781	1786	1781465171385395187	superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-configure	9dfc7205479f849c
+1781	1786	1781465171385395187	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/superlu-subbuild/superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-configure	9dfc7205479f849c
+1786	1790	1781465171389286278	superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-build	fab384f5f4cfb02b
+1786	1790	1781465171389286278	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/superlu-subbuild/superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-build	fab384f5f4cfb02b
+1790	1795	1781465171397068460	superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-install	acb4bd1a331962a4
+1790	1795	1781465171397068460	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/superlu-subbuild/superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-install	acb4bd1a331962a4
+1795	1799	1781465171400959551	superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-test	53b32d82aed5401e
+1795	1799	1781465171400959551	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/superlu-subbuild/superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-test	53b32d82aed5401e
+1799	1806	1781465171408741733	CMakeFiles/superlu-populate-complete	11339d196af04dc1
+1799	1806	1781465171408741733	superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-done	11339d196af04dc1
+1799	1806	1781465171408741733	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/superlu-subbuild/CMakeFiles/superlu-populate-complete	11339d196af04dc1
+1799	1806	1781465171408741733	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/superlu-subbuild/superlu-populate-prefix/src/superlu-populate-stamp/superlu-populate-done	11339d196af04dc1

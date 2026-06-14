@@ -1,0 +1,7 @@
+# This is a generated file and its contents are an internal implementation detail.
+# The patch step will be re-executed if anything in this file changes.
+# No other meaning or use of this file is supported.
+
+command (connected)=/home/qingping/my_chip_designs/ALIGN-public/.venv/lib/python3.12/site-packages/cmake/data/bin/cmake;-Dcan_fetch=YES;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/ilpsolverif-subbuild/ilpsolverif-populate-prefix/tmp/ilpsolverif-populate-gitupdate.cmake
+command (disconnected)=/home/qingping/my_chip_designs/ALIGN-public/.venv/lib/python3.12/site-packages/cmake/data/bin/cmake;-Dcan_fetch=NO;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/ilpsolverif-subbuild/ilpsolverif-populate-prefix/tmp/ilpsolverif-populate-gitupdate.cmake
+work_dir=/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/ilpsolverif-src

@@ -1,0 +1,100 @@
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/home/qingping/my_chip_designs/ALIGN-public/.venv/lib/python3.12/site-packages/cmake/data/share/cmake-4.3/Modules/CMakeDetermineSystem.cmake:12 (find_program)"
+      - "CMakeLists.txt:16 (project)"
+    mode: "program"
+    variable: "CMAKE_UNAME"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "uname"
+    candidate_directories:
+      - "/home/qingping/my_chip_designs/ALIGN-public/.venv/bin/"
+      - "/home/qingping/.vscode-server/bin/6928394f91b684055b873eecb8bc281365131f1c/bin/remote-cli/"
+      - "/home/qingping/.local/bin/"
+      - "/usr/local/bin/"
+      - "/usr/local/cuda/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/ImageMagick-7.1.2-Q16-HDRI/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
+      - "/mnt/c/Users/qingping/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/qingping/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/qingping/AppData/Local/PowerToys/DSCModules/"
+      - "/mnt/c/Users/qingping/AppData/Local/Programs/Antigravity IDE/bin/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/home/qingping/my_chip_designs/ALIGN-public/.venv/bin/uname"
+      - "/home/qingping/.vscode-server/bin/6928394f91b684055b873eecb8bc281365131f1c/bin/remote-cli/uname"
+      - "/home/qingping/.local/bin/uname"
+      - "/usr/local/bin/uname"
+      - "/usr/local/cuda/bin/uname"
+      - "/usr/local/sbin/uname"
+      - "/usr/sbin/uname"
+    found: "/usr/bin/uname"
+    search_context:
+      ENV{PATH}:
+        - "/home/qingping/my_chip_designs/ALIGN-public/.venv/bin"
+        - "/home/qingping/.vscode-server/bin/6928394f91b684055b873eecb8bc281365131f1c/bin/remote-cli"
+        - "/home/qingping/.local/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+        - "/home/qingping/.local/bin"
+        - "/usr/local/cuda/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/ImageMagick-7.1.2-Q16-HDRI"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/"
+        - "/mnt/c/Users/qingping/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/qingping/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/qingping/AppData/Local/PowerToys/DSCModules/"
+        - "/mnt/c/Users/qingping/AppData/Local/Programs/Antigravity IDE/bin"
+        - "/snap/bin"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/home/qingping/my_chip_designs/ALIGN-public/.venv/lib/python3.12/site-packages/cmake/data/share/cmake-4.3/Modules/CMakeDetermineSystem.cmake:212 (message)"
+      - "CMakeLists.txt:16 (project)"
+    message: |
+      The system is: Linux - 6.18.33.1-microsoft-standard-WSL2 - x86_64
+...

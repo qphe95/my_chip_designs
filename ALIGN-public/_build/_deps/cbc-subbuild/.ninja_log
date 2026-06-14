@@ -1,0 +1,21 @@
+# ninja log v7
+1	5	1781465177875249572	cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-mkdir	d7083d85a6601c6d
+1	5	1781465177875249572	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/cbc-subbuild/cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-mkdir	d7083d85a6601c6d
+6	1376	1781465179246055029	cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-download	9feac6d96c759828
+6	1376	1781465179246055029	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/cbc-subbuild/cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-download	9feac6d96c759828
+1376	1381	1781465179252423101	cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-update	13f0f3edaffcfe7
+1376	1381	1781465179252423101	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/cbc-subbuild/cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-update	13f0f3edaffcfe7
+1381	1385	1781465179256313422	cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-patch	d2a4b21e7dd081e9
+1381	1385	1781465179256313422	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/cbc-subbuild/cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-patch	d2a4b21e7dd081e9
+1385	1390	1781465179260203742	cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-configure	58d073b7b285ac58
+1385	1390	1781465179260203742	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/cbc-subbuild/cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-configure	58d073b7b285ac58
+1390	1394	1781465179264094063	cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-build	991093564ceaa222
+1390	1394	1781465179264094063	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/cbc-subbuild/cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-build	991093564ceaa222
+1394	1399	1781465179267984384	cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-install	b04344c823c008b2
+1394	1399	1781465179267984384	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/cbc-subbuild/cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-install	b04344c823c008b2
+1399	1403	1781465179271874704	cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-test	cbacb59d49f03cc
+1399	1403	1781465179271874704	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/cbc-subbuild/cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-test	cbacb59d49f03cc
+1404	1410	1781465179279655346	CMakeFiles/cbc-populate-complete	e5ffe79b988c9c0b
+1404	1410	1781465179279655346	cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-done	e5ffe79b988c9c0b
+1404	1410	1781465179279655346	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/cbc-subbuild/CMakeFiles/cbc-populate-complete	e5ffe79b988c9c0b
+1404	1410	1781465179279655346	/home/qingping/my_chip_designs/ALIGN-public/_build/_deps/cbc-subbuild/cbc-populate-prefix/src/cbc-populate-stamp/cbc-populate-done	e5ffe79b988c9c0b

@@ -390,8 +390,10 @@ install_sky130_pdk() {
     # Patch foundry_install.py to enable 'gds ordering on' before reading GDS.
     # This prevents Magic from crashing on GDS files where cells are referenced
     # before they are defined (common in the sky130 I/O library).
-    python3 - <<PY
-with open("$src_dir/common/foundry_install.py", "r") as f:
+    SRC_DIR="$src_dir" python3 - <<'PY'
+import os
+src_dir = os.environ['SRC_DIR']
+with open(f"{src_dir}/common/foundry_install.py", "r") as f:
     content = f.read()
 
 # Add 'gds ordering on' after 'gds rescale false' in GDS-to-mag scripts
@@ -399,15 +401,17 @@ old = "print('gds rescale false', file=ofile)"
 new = "print('gds rescale false', file=ofile)\n                    print('gds ordering on', file=ofile)"
 content = content.replace(old, new)
 
-with open("$src_dir/common/foundry_install.py", "w") as f:
+with open(f"{src_dir}/common/foundry_install.py", "w") as f:
     f.write(content)
 PY
 
     # Fix a bug in open_pdks 1.0.99 configure where the auto-download check
     # compares FOUND against the wrong string and recursively calls itself,
     # so sky130 is never downloaded.
-    python3 - <<PY
-with open("$src_dir/scripts/configure", "r") as f:
+    SRC_DIR="$src_dir" python3 - <<'PY'
+import os
+src_dir = os.environ['SRC_DIR']
+with open(f"{src_dir}/scripts/configure", "r") as f:
     content = f.read()
 
 # Replace the broken check and recursive call with the correct download call.
@@ -416,13 +420,14 @@ content = content.replace(
     'if [ "$FOUND" = "0" ]; then\n                echo "Could not find sky130 in standard search paths, downloading to ../pdks/sky130 ..."\n                pdk_get\n            fi'
 )
 
-with open("$src_dir/scripts/configure", "w") as f:
+with open(f"{src_dir}/scripts/configure", "w") as f:
     f.write(content)
 PY
 
     # Use system Python (not a venv) because open_pdks configure needs distutils.
     PYTHON=/usr/bin/python3 ./configure \
         --enable-sky130-pdk \
+        --with-sky130-local-path="$INSTALL_PREFIX/share/pdk" \
         --prefix="$INSTALL_PREFIX"
 
     # Clean previous partial build so stale generated files are regenerated

@@ -2,5 +2,5 @@
 *.log
 *.raw
 */tran_out
-*/LOG/
-*/work/
+LOG/
+work/

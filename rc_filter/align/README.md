@@ -28,7 +28,13 @@ cd ~/my_chip_designs/rc_filter/align
 ./run_align.sh
 ```
 
-Outputs (GDS, LEF, JSON) are written to `align/work/`.
+Outputs (JSON, LEF, primitive GDS JSON) are written to `align/work/`.
+
+A rendered PNG of the top-level layout is produced by `render_align.py`:
+
+```bash
+python3 render_align.py work/3_pnr/RC_FILTER_0.json rc_filter_align_layout.png
+```
 
 ## Notes and caveats
 

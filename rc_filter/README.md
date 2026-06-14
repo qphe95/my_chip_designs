@@ -7,7 +7,8 @@ A minimal analog simulation project for the IIC-OSIC-TOOLS container.
 - `rc_filter.spice`   : SPICE netlist for an RC low-pass filter
 - `plot_results.py`   : Python script to plot the transient output
 - `rc_filter_plot.png`: Generated plot (after running)
-- `rc_filter_layout.png`: Rendered chip layout image (generated in `layout/`)
+- `rc_filter_layout.png`: Rendered chip layout image from Magic (in `layout/`)
+- `rc_filter_align_layout.png`: Rendered auto-generated layout from ALIGN (in `align/`)
 - `tran_out`          : Raw numeric output from ngspice
 - `rc_filter.log`     : ngspice log file
 - `layout/`           : Magic VLSI layout files (see `layout/README.md`)

@@ -518,6 +518,43 @@ install_align() {
         git clone https://github.com/ALIGN-analoglayout/ALIGN-pdk-sky130.git "$pdk_src"
     fi
 
+    # Patch ALIGN-pdk-sky130 layers.json so the resistor primitive generator
+    # can read the metal pitch/width values it expects from the Cap layer,
+    # and the capacitor layers have direction information for the DRC engine.
+    PDK_DIR="$pdk_src/SKY130_PDK" python3 - <<'PY'
+import json
+import os
+pdk_dir = os.environ['PDK_DIR']
+path = os.path.join(pdk_dir, 'layers.json')
+with open(path) as f:
+    data = json.load(f)
+
+metal = {}
+for layer in data['Abstraction']:
+    name = layer.get('Layer')
+    if name in ('M1', 'M2', 'M3'):
+        metal[name] = layer
+
+for layer in data['Abstraction']:
+    name = layer.get('Layer')
+    if name == 'Cap':
+        layer.setdefault('m1Pitch', metal['M1']['Pitch'])
+        layer.setdefault('m1Width', metal['M1']['Width'])
+        layer.setdefault('m2Pitch', metal['M2']['Pitch'])
+        layer.setdefault('m2Width', metal['M2']['Width'])
+        layer.setdefault('m3Pitch', metal['M3']['Pitch'])
+        layer.setdefault('m3Width', metal['M3']['Width'])
+    elif name == 'CapMIMLayer':
+        layer.setdefault('Direction', 'V')
+        layer.setdefault('Pitch', metal['M3']['Pitch'])
+        layer.setdefault('Width', metal['M3']['Width'])
+    elif name == 'CapMIMContact':
+        layer.setdefault('Direction', '*')
+
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+PY
+
     # Create a dedicated Python venv for ALIGN
     python3 -m venv "$venv_dir"
     # shellcheck source=/dev/null

@@ -5,8 +5,8 @@ RC low-pass filter in `rc_filter.spice`.
 
 ## Files
 
-- `generate_layout.tcl` — Magic Tcl script that draws the resistor, capacitor,
-  routing, and probe pads.
+- `generate_layout.tcl` — Magic Tcl script that draws a 100 kΩ poly resistor,
+  a 10 pF MIM capacitor, routing, and probe pads.
 - `run_layout.sh` — Convenience script that checks for Magic + sky130A and runs
   `generate_layout.tcl`.
 - `rc_filter.mag` — Pre-generated Magic layout cell.  Re-created by
@@ -61,14 +61,13 @@ In WSL you need an X server (WSLg on Windows 11, or VcXsrv/Xming on Windows 10).
 
 ## Layout notes
 
-- **R1 (1 kΩ)** is drawn as a symbolic poly resistor strip.  For a real tape-out,
-  use the PDK resistor cell `sky130_fd_pr__res_generic_po` to get a calibrated,
-  DRC-clean resistor.
-- **C1 (1 nF)** is drawn as a small symbolic MIM capacitor.  A real 1 nF MIM
-  capacitor in sky130 would occupy roughly 0.5 mm² (~707 µm × 707 µm), which is
-  very expensive in silicon area.  In most practical designs a 1 nF capacitor is
-  placed off-chip and bonded to the IC pads, or a much smaller on-chip cap is
-  used with a correspondingly larger resistor.
+- **R1 (100 kΩ)** is drawn as a symbolic poly resistor strip.  A SkyWater 130 nm
+  high-resistance poly resistor is roughly 350 Ω/square, so 100 kΩ needs about
+  286 squares (~143 µm long at 0.5 µm width).  For a real tape-out, use the PDK
+  resistor cell `sky130_fd_pr__res_generic_po` to get a calibrated, DRC-clean
+  resistor.
+- **C1 (10 pF)** is drawn as a MIM capacitor.  At ~2 fF/µm² a 10 pF MIM cap
+  occupies roughly 70 µm × 70 µm, which is a practical on-chip size.
 - The layout includes large `met5` probe pads labeled `Vin`, `Vout`, and `GND`
   so the circuit can be simulated, probed, or wire-bonded.
 

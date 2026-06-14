@@ -14,20 +14,21 @@ A minimal analog simulation project for the IIC-OSIC-TOOLS container.
 ## The circuit
 
 ```
-        R1 = 1 kΩ
+        R1 = 100 kΩ
 Vin ----[====]----+---- Vout
                  |
-                === C1 = 1 nF
+                === C1 = 10 pF
                  |
                 GND
 ```
 
-Time constant: τ = R·C = 1 kΩ × 1 nF = 1 µs  
+Time constant: τ = R·C = 100 kΩ × 10 pF = 1 µs  
 -3 dB corner frequency: f_c ≈ 1 / (2πRC) ≈ 159 kHz
 
 The input is a 1 kHz square wave (0 V to 1 V). Because 1 kHz is far below
 f_c, the square wave passes through, but its edges are rounded by the RC
-charging/discharging behavior.
+charging/discharging behavior. These R/C values are practical for an on-chip
+passive RC filter using a SkyWater 130 nm poly resistor and MIM capacitor.
 
 ## Run the simulation from inside the container
 
@@ -63,11 +64,11 @@ charging/discharging behavior.
 Open `rc_filter.spice` in a text editor and change R1 or C1. For example:
 
 ```spice
-R1 in out 10k
-C1 out 0  10n
+R1 in out 1meg
+C1 out 0  1p
 ```
 
-This gives τ = 100 µs — the output will look much more rounded at 1 kHz.
+This also gives τ = 1 µs with a smaller capacitor and a longer resistor.
 Re-run the simulation and plot to see the difference.
 
 ## Command reference

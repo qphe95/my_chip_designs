@@ -32,7 +32,7 @@ axes[1].set_ylabel("Voltage (V)")
 axes[1].set_title("Zoomed First Rising Edge (τ = R·C = 1 µs)")
 axes[1].legend()
 axes[1].grid(True)
-axes[1].set_xlim(0, 10)
+axes[1].set_xlim(0, 5)
 axes[1].axhline(y=0.632, color="r", linestyle="--", alpha=0.5, label="63.2%")
 
 plt.tight_layout()

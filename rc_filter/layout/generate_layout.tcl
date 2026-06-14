@@ -6,10 +6,9 @@
 #   magic -dnull -noconsole generate_layout.tcl
 #
 # The layout creates:
-#   - A poly resistor for R1 = 1 kOhm (symbolic; use PDK resistor PCell for
+#   - A poly resistor for R1 = 100 kOhm (symbolic; use PDK resistor PCell for
 #     a production tape-out)
-#   - A MIM capacitor for C1 = 1 nF (symbolic; 1 nF is very large on-chip and
-#     would usually be an off-chip capacitor)
+#   - A MIM capacitor for C1 = 10 pF
 #   - Metal routing from Vin -> R -> C -> Vout
 #   - Ground connection for the capacitor bottom plate
 #   - Labels for Vin, Vout, GND
@@ -33,10 +32,9 @@ snap internal
 # Coordinates are in Magic internal units for sky130A (1 unit = 1 lambda = 0.005 um).
 
 # --- Resistor R1: poly resistor strip --------------------------------------
-# sky130 poly sheet resistance is ~48 Ohm/square (silicided) or
-# ~350 Ohm/square for high-resistance poly.  This layout uses a symbolic
-# 2-lambda-wide poly strip.  For a real 1 kOhm resistor, use the PDK cell
-# sky130_fd_pr__res_generic_po.
+# sky130 high-resistance poly is ~350 Ohm/square.  A 100 kOhm resistor needs
+# about 286 squares.  This layout uses a symbolic 2-lambda-wide poly strip.
+# For a real 100 kOhm resistor, use the PDK cell sky130_fd_pr__res_generic_po.
 box 100 200 102 260
 paint poly
 box 100 260 160 262

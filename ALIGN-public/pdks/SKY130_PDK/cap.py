@@ -85,8 +85,10 @@ class CapGenerator(DefaultCanvas):
                                      spg=SingleGrid(pitch=1, offset=0)))
 
         # ---- Capacitor body ----
-        # Bottom plate (met3).
-        self.addWire(m4_plate, 'MINUS', 0, 0, L)
+        # Bottom plate (met3).  Extend it past the left edge of the capm
+        # region so the MINUS via can land outside the capacitor body.
+        m4_plate_overhang = 500
+        self.addWire(m4_plate, 'MINUS', 0, -m4_plate_overhang, L)
 
         # MIM top plate (capm), inset from the bottom plate by capm_enc.
         self.addRegion(self.mim_region, None, capm_enc, capm_enc,
@@ -115,10 +117,12 @@ class CapGenerator(DefaultCanvas):
             y += mimcc_size + mimcc_space
 
         # ---- MINUS terminal: M4 plate -> V3 -> M3 -> V2 -> M2 pin ----
-        m3_track_minus = max(1, int(round((L / 4) / m3_pitch)))
+        # Drop the MINUS pin from the left edge of the M4 bottom plate, outside
+        # the capm region.  A long M3 strap brings it up to the M2 pin.
+        m3_track_minus = 0
         self.addVia(self.v3, 'MINUS', m3_track_minus, m4_track)
         self.addWire(self.m3, 'MINUS', m3_track_minus,
-                     (m2_track - 1, 1), (m2_track, 3))
+                     (-1, 1), (m2_track, 3))
         self.addVia(self.v2, 'MINUS', m3_track_minus, m2_track)
         self.addWire(self.m2, 'MINUS', m2_track,
                      (m3_track_minus, -1), (m3_track_minus + 2, 1),

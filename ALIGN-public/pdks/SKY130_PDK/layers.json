@@ -59,6 +59,14 @@
       }
     },
     {
+      "Layer": "PolyRes",
+      "GdsLayerNo": 66,
+      "GdsDatatype": {
+        "Draw": 13
+      },
+      "Direction": "*"
+    },
+    {
       "Layer": "Fin",
       "GdsLayerNo": 2,
       "GdsDatatype": {

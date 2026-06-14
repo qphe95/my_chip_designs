@@ -506,30 +506,18 @@ install_align() {
         return 1
     fi
 
-    if [[ -x "$venv_dir/bin/schematic2layout.py" ]]; then
-        log_info "Local ALIGN already installed in $venv_dir."
-        log_info "Remove $venv_dir to force a rebuild from source."
-        return 0
+    # Use the Sky130 PDK that is bundled with the repo-local ALIGN fork.
+    local pdk_src="$align_src/pdks"
+
+    if [[ ! -d "$pdk_src/SKY130_PDK" ]]; then
+        log_error "Local Sky130 PDK not found at $pdk_src/SKY130_PDK."
+        return 1
     fi
 
-    log_info "Installing repo-local ALIGN analog layout generator..."
-    log_warn "This builds ALIGN from $align_src. It may take 15-30 minutes."
-
-    install_align_build_deps
-
-    local pdk_src="$BUILD_DIR/ALIGN-pdk-sky130"
-
-    mkdir -p "$BUILD_DIR"
-    cd "$BUILD_DIR"
-
-    # Clone the sky130 PDK adapter (ALIGN-public itself is kept locally).
-    if [[ ! -d "$pdk_src" ]]; then
-        git clone https://github.com/ALIGN-analoglayout/ALIGN-pdk-sky130.git "$pdk_src"
-    fi
-
-    # Patch ALIGN-pdk-sky130 layers.json so the resistor primitive generator
-    # can read the metal pitch/width values it expects from the Cap layer,
-    # and the capacitor layers have direction information for the DRC engine.
+    # Patch the bundled Sky130 PDK layers.json so the resistor primitive
+    # generator can read the metal pitch/width values it expects from the Cap
+    # layer, and the capacitor layers have direction information for the DRC
+    # engine. This is idempotent, so run it every time.
     PDK_DIR="$pdk_src/SKY130_PDK" python3 - <<'PY'
 import json
 import os
@@ -563,6 +551,17 @@ for layer in data['Abstraction']:
 with open(path, 'w') as f:
     json.dump(data, f, indent=2)
 PY
+
+    if [[ -x "$venv_dir/bin/schematic2layout.py" ]]; then
+        log_info "Local ALIGN already installed in $venv_dir."
+        log_info "Remove $venv_dir to force a rebuild from source."
+        return 0
+    fi
+
+    log_info "Installing repo-local ALIGN analog layout generator..."
+    log_warn "This builds ALIGN from $align_src. It may take 15-30 minutes."
+
+    install_align_build_deps
 
     # Create a dedicated Python venv inside the local ALIGN source tree.
     python3 -m venv "$venv_dir"

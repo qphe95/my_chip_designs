@@ -147,6 +147,9 @@ cd ~/my_chip_designs/rc_filter/align
 ./run_align.sh
 ```
 
-Outputs appear in `align/work/`. This flow is experimental: ALIGN's sky130
-passive-device generators are simplified, so you should verify the resulting
-layout with Magic DRC and Netgen LVS before considering it tape-out ready.
+Outputs appear in `align/work/`. The ALIGN netlist (`align/rc_filter.sp`)
+uses a scaled-down MIM capacitor (`10u x 10u`) so the auto-generated layout
+is compact and both components are visible at similar scale. This flow is
+experimental: ALIGN's sky130 passive-device generators are simplified, so you
+should verify the resulting layout with Magic DRC and Netgen LVS before
+considering it tape-out ready.

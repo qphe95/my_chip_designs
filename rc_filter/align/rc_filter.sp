@@ -5,6 +5,6 @@
 * visible at similar scale.
 
 .subckt rc_filter vin vout vss
-R1 vin n1 resistor r=100k
-C1 n1 vss sky130_fd_pr__cap_mim_m3_1 w=10u l=10u
+R1 vin vout resistor r=100k
+C1 vout vss sky130_fd_pr__cap_mim_m3_1 w=10u l=10u
 .ends rc_filter

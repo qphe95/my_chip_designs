@@ -589,11 +589,14 @@ PY
     pip install -v -e . --no-build-isolation
 
     local built_so
-    built_so=$(find "$align_src/_skbuild" -path '*/cmake-install/align/PnR.*.so' -print -quit 2>/dev/null)
+    built_so=$(find "$align_src/_skbuild" -path '*/cmake-build/PlaceRouteHierFlow/PnR.*.so' -print -quit 2>/dev/null)
     if [[ -n "$built_so" ]]; then
-        cp -v "$built_so" "$align_src/align/"
+        local align_so="$align_src/align/$(basename "$built_so")"
+        rm -f "$align_so"
+        ln -s "$(realpath --relative-to="$align_src/align" "$built_so")" "$align_so"
+        log_info "Linked compiled ALIGN extension: $align_so"
     else
-        log_warn "Could not locate compiled ALIGN extension (PnR.*.so) to copy."
+        log_warn "Could not locate compiled ALIGN extension (PnR.*.so) to link."
     fi
 
     deactivate

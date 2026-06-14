@@ -39,6 +39,26 @@ A rendered PNG of the top-level layout is produced by `render_align.py`:
 python3 render_align.py work/3_pnr/RC_FILTER_0.json rc_filter_align_layout.png
 ```
 
+## Developing ALIGN in this repo
+
+The repo-local `ALIGN-public` is installed in editable mode, so **Python
+changes** inside `ALIGN-public/align/` (including the Sky130 PDK generators in
+`ALIGN-public/pdks/SKY130_PDK/`) are picked up immediately by `run_align.sh`.
+
+**C++ changes** in `ALIGN-public/PlaceRouteHierFlow/` require rebuilding the
+compiled `PnR` extension. Instead of a full `pip install`, run the fast
+incremental rebuild helper from the repo root:
+
+```bash
+cd ~/my_chip_designs
+./rebuild_align_ext.sh
+```
+
+This runs `ninja` in the existing scikit-build directory and re-links the
+`PnR.*.so` extension next to ALIGN's Python sources. Only remove
+`ALIGN-public/.venv` and re-run `setup_env.sh` if the build directory itself is
+corrupted or you need to change build options.
+
 ## Notes and caveats
 
 - ALIGN's sky130 resistor generator uses an internal simplified sheet-resistance

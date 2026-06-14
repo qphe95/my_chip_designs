@@ -391,15 +391,24 @@ install_sky130_pdk() {
     # This prevents Magic from crashing on GDS files where cells are referenced
     # before they are defined (common in the sky130 I/O library).
     SRC_DIR="$src_dir" python3 - <<'PY'
-import os
+import os, re
 src_dir = os.environ['SRC_DIR']
 with open(f"{src_dir}/common/foundry_install.py", "r") as f:
     content = f.read()
 
-# Add 'gds ordering on' after 'gds rescale false' in GDS-to-mag scripts
-old = "print('gds rescale false', file=ofile)"
-new = "print('gds rescale false', file=ofile)\n                    print('gds ordering on', file=ofile)"
-content = content.replace(old, new)
+# Add 'gds ordering on' after 'gds rescale false' in GDS-to-mag scripts.
+# Match the original indentation so the inserted line is aligned correctly.
+if "gds ordering on" not in content:
+    def add_gds_ordering(match):
+        indent = match.group(1)
+        return match.group(0) + f"\n{indent}print('gds ordering on', file=ofile)"
+
+    content = re.sub(
+        r"^(\s*)print\('gds rescale false', file=ofile\)$",
+        add_gds_ordering,
+        content,
+        flags=re.MULTILINE
+    )
 
 with open(f"{src_dir}/common/foundry_install.py", "w") as f:
     f.write(content)

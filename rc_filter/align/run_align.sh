@@ -23,7 +23,8 @@ mkdir -p "$WORK_DIR"
 cd "$WORK_DIR"
 
 echo "Running ALIGN on $SCRIPT_DIR/rc_filter.sp with custom Sky130 generators ..."
-"$CUSTOM_PDK_WRAPPER" "$SCRIPT_DIR" -s RC_FILTER
+# Note: ALIGN's --skipGDS flag is a negative flag; passing it actually enables GDS output.
+"$CUSTOM_PDK_WRAPPER" "$SCRIPT_DIR" -s RC_FILTER --skipGDS
 
 echo "ALIGN run complete. Outputs are in $WORK_DIR"
 echo "Look for *.gds and *.lef files."

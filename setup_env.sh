@@ -504,7 +504,8 @@ install_align() {
 
     local align_src="$BUILD_DIR/ALIGN-public"
     local pdk_src="$BUILD_DIR/ALIGN-pdk-sky130"
-    local venv_dir="$INSTALL_PREFIX/venv-align"
+    # Keep the venv in the build tree so it does not need sudo to create.
+    local venv_dir="$BUILD_DIR/venv-align"
 
     mkdir -p "$BUILD_DIR"
     cd "$BUILD_DIR"

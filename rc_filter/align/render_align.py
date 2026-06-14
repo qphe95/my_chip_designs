@@ -82,10 +82,12 @@ def main():
             if t.get("layer") != layer_name:
                 continue
             x1, y1, x2, y2 = t["rect"]
+            color = LAYER_COLORS.get(layer_name, "#ced4da")
             ax.add_patch(patches.Rectangle(
                 (x1, y1), x2 - x1, y2 - y1,
-                linewidth=0, edgecolor="none",
-                facecolor=LAYER_COLORS.get(layer_name, "#ced4da"),
+                linewidth=0.5, edgecolor="black",
+                facecolor=color,
+                alpha=0.5,
                 zorder=LAYER_ZORDER.get(layer_name, 5)
             ))
 

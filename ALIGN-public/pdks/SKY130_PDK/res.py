@@ -124,7 +124,11 @@ class ResGenerator(DefaultCanvas):
         x1 = ((right_edge + m3_pitch - 1) // m3_pitch) * m3_pitch
 
         y0 = -m2_pitch
-        y1 = l_seg + m2_pitch
+        # Round total cell height up to a multiple of the M2 pitch, as required
+        # by ALIGN's LEF generator. Total height = y1 - y0 = y1 + m2_pitch.
+        total_height = l_seg + 2 * m2_pitch
+        rounded_height = ((total_height + m2_pitch - 1) // m2_pitch) * m2_pitch
+        y1 = rounded_height - m2_pitch
 
         self.addRegion(self.bbox_gen, 'Boundary', x0, y0, x1, y1)
 

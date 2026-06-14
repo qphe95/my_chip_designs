@@ -495,9 +495,9 @@ class BoxPacking(UserConstraint):
 
         {
             "constraint": "BoxPacking",
-            "instances": ["X_R1", "X_C1"],
-            "direction": "horizontal",
-            "align": "bottom",
+            "instances": ["R1", "C1"],
+            "direction": "vertical",
+            "align": "left",
             "abut": true,
             "aspect_ratio_low": 0.5,
             "aspect_ratio_high": 2.0

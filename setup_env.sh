@@ -7,7 +7,7 @@
 # Supports Debian/Ubuntu. Other distros fall back to source builds.
 #
 # Optional environment variables:
-#   INSTALL_ALIGN=yes       # also build and install ALIGN
+#   INSTALL_ALIGN=no        # skip ALIGN install (default is yes)
 #
 set -euo pipefail
 
@@ -18,7 +18,7 @@ INSTALL_PREFIX="${INSTALL_PREFIX:-/usr/local}"
 BUILD_DIR="${BUILD_DIR:-$HOME/.local/src/xschem_ngspice_build}"
 USE_PACKAGE_MANAGER="${USE_PACKAGE_MANAGER:-auto}"   # auto | only | no
 INSTALL_SKY130_PDK="${INSTALL_SKY130_PDK:-yes}"      # yes | no
-INSTALL_ALIGN="${INSTALL_ALIGN:-no}"                 # yes | no (builds ALIGN analog P&R from source)
+INSTALL_ALIGN="${INSTALL_ALIGN:-yes}"                # yes | no (builds ALIGN analog P&R from source)
 
 # Ensure locally-built tools take precedence over distro packages.
 export PATH="$INSTALL_PREFIX/bin:$PATH"

@@ -131,11 +131,12 @@ See `layout/README.md` for details and design notes.
 
 ## Generate the layout with ALIGN (optional, experimental)
 
-ALIGN is an open-source analog layout generator. To install it:
+ALIGN is an open-source analog layout generator and is installed by default
+when you run `setup_env.sh`. To skip it:
 
 ```bash
 cd ~/my_chip_designs
-INSTALL_ALIGN=yes ./setup_env.sh
+INSTALL_ALIGN=no ./setup_env.sh
 ```
 
 Then generate the RC filter layout automatically:

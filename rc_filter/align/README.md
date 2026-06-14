@@ -11,11 +11,11 @@ This directory contains inputs for the [ALIGN](https://github.com/ALIGN-analogla
 
 ## Prerequisites
 
-ALIGN must be installed. The easiest way is via `setup_env.sh`:
+ALIGN is installed by default when you run `setup_env.sh`. To skip it:
 
 ```bash
 cd ~/my_chip_designs
-INSTALL_ALIGN=yes ./setup_env.sh
+INSTALL_ALIGN=no ./setup_env.sh
 ```
 
 This clones and builds ALIGN-public plus the ALIGN-pdk-sky130 adapter, and

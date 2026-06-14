@@ -391,7 +391,6 @@ install_sky130_pdk() {
     # This prevents Magic from crashing on GDS files where cells are referenced
     # before they are defined (common in the sky130 I/O library).
     python3 - <<PY
-import re
 with open("$src_dir/common/foundry_install.py", "r") as f:
     content = f.read()
 
@@ -401,6 +400,23 @@ new = "print('gds rescale false', file=ofile)\n                    print('gds or
 content = content.replace(old, new)
 
 with open("$src_dir/common/foundry_install.py", "w") as f:
+    f.write(content)
+PY
+
+    # Fix a bug in open_pdks 1.0.99 configure where the auto-download check
+    # compares FOUND against the wrong string and recursively calls itself,
+    # so sky130 is never downloaded.
+    python3 - <<PY
+with open("$src_dir/scripts/configure", "r") as f:
+    content = f.read()
+
+# Replace the broken check and recursive call with the correct download call.
+content = content.replace(
+    'if [ "$FOUND" = "sky130" ]; then\n                echo "Could not found sky130 in standard search paths, manually downloading to ../pdks/sky130 ..."\n                pdk_find\n            fi',
+    'if [ "$FOUND" = "0" ]; then\n                echo "Could not find sky130 in standard search paths, downloading to ../pdks/sky130 ..."\n                pdk_get\n            fi'
+)
+
+with open("$src_dir/scripts/configure", "w") as f:
     f.write(content)
 PY
 

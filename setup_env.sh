@@ -2,8 +2,8 @@
 #
 # setup_env.sh
 # Installs xschem (schematic capture), ngspice (circuit simulator),
-# Magic (VLSI layout editor), the SkyWater 130 nm open PDK, and (optionally)
-# ALIGN (open-source analog layout generator) on WSL.
+# Magic (VLSI layout editor), netgen (LVS), the SkyWater 130 nm open PDK,
+# and (optionally) ALIGN (open-source analog layout generator) on WSL.
 # Supports Debian/Ubuntu. Other distros fall back to source builds.
 #
 # Optional environment variables:
@@ -19,6 +19,7 @@ BUILD_DIR="${BUILD_DIR:-$HOME/.local/src/xschem_ngspice_build}"
 USE_PACKAGE_MANAGER="${USE_PACKAGE_MANAGER:-auto}"   # auto | only | no
 INSTALL_SKY130_PDK="${INSTALL_SKY130_PDK:-yes}"      # yes | no
 INSTALL_ALIGN="${INSTALL_ALIGN:-yes}"                # yes | no (builds ALIGN analog P&R from source)
+INSTALL_NETGEN="${INSTALL_NETGEN:-yes}"              # yes | no (installs netgen LVS tool)
 
 # Ensure locally-built tools take precedence over distro packages.
 export PATH="$INSTALL_PREFIX/bin:$PATH"
@@ -355,6 +356,91 @@ install_magic() {
 }
 
 # -----------------------------------------------------------------------------
+# netgen (LVS) installation
+# -----------------------------------------------------------------------------
+install_netgen_from_package() {
+    log_info "Attempting to install netgen via package manager..."
+    local distro
+    distro=$(detect_distro)
+    case "$distro" in
+        ubuntu|debian|linuxmint|pop)
+            sudo apt-get install -y netgen-lvs
+            ;;
+        fedora)
+            sudo dnf install -y netgen-lvs
+            ;;
+        opensuse*)
+            sudo zypper install -y netgen-lvs
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+build_netgen_from_source() {
+    log_info "Building netgen from source..."
+    local src_dir="$BUILD_DIR/netgen"
+
+    mkdir -p "$BUILD_DIR"
+    cd "$BUILD_DIR"
+
+    if [[ ! -d "$src_dir" ]]; then
+        git clone https://github.com/RTimothyEdwards/netgen.git "$src_dir"
+    fi
+
+    cd "$src_dir"
+    git pull
+
+    make clean >/dev/null 2>&1 || true
+
+    ./configure \
+        --prefix="$INSTALL_PREFIX"
+
+    make -j"$(nproc)"
+    sudo make install
+    sudo ldconfig
+}
+
+install_netgen() {
+    if [[ "$INSTALL_NETGEN" != "yes" ]]; then
+        log_info "Skipping netgen install (INSTALL_NETGEN=$INSTALL_NETGEN)."
+        return 0
+    fi
+
+    if command_exists netgen-lvs; then
+        log_info "netgen-lvs already installed: $(netgen-lvs --version 2>&1 | head -1)"
+        return 0
+    fi
+
+    if command_exists netgen; then
+        log_info "netgen already installed: $(netgen --version 2>&1 | head -1)"
+        return 0
+    fi
+
+    if [[ "$USE_PACKAGE_MANAGER" == "auto" || "$USE_PACKAGE_MANAGER" == "only" ]]; then
+        if install_netgen_from_package; then
+            log_info "netgen installed from package manager."
+            return 0
+        fi
+    fi
+
+    if [[ "$USE_PACKAGE_MANAGER" == "only" ]]; then
+        log_error "Package-manager install failed and USE_PACKAGE_MANAGER=only."
+        return 1
+    fi
+
+    build_netgen_from_source
+
+    if command_exists netgen || command_exists netgen-lvs; then
+        log_info "netgen built and installed from source."
+    else
+        log_error "netgen source build failed."
+        return 1
+    fi
+}
+
+# -----------------------------------------------------------------------------
 # SkyWater 130 nm PDK installation
 # -----------------------------------------------------------------------------
 sky130_tech_file() {
@@ -661,7 +747,7 @@ EOF
 # Main
 # -----------------------------------------------------------------------------
 main() {
-    log_info "Installing xschem + ngspice + magic + sky130 PDK on WSL..."
+    log_info "Installing xschem + ngspice + magic + netgen + sky130 PDK on WSL..."
     log_info "Detected distro: $(detect_distro)"
 
     fix_wsl_apt_hang
@@ -679,6 +765,7 @@ main() {
     install_ngspice
     install_xschem
     install_magic
+    install_netgen
     install_sky130_pdk
     install_align
     setup_xschem_env
@@ -690,6 +777,10 @@ main() {
     command -v xschem && xschem --version 2>&1 | head -3 || log_warn "xschem not in PATH"
     echo "---"
     command -v magic && magic --version 2>&1 | head -3 || log_warn "magic not in PATH"
+    echo "---"
+    command -v netgen-lvs && netgen-lvs --version 2>&1 | head -3 || \
+        command -v netgen && netgen --version 2>&1 | head -3 || \
+        log_warn "netgen not in PATH"
     echo "---"
     if [[ -f $(sky130_tech_file) ]]; then
         log_info "Sky130 PDK OK: $(sky130_tech_file)"

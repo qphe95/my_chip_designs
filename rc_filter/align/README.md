@@ -59,12 +59,33 @@ This runs `ninja` in the existing scikit-build directory and re-links the
 `ALIGN-public/.venv` and re-run `setup_env.sh` if the build directory itself is
 corrupted or you need to change build options.
 
+## Run PEX and LVS
+
+After `run_align.sh` finishes, extract a SPICE netlist from the GDS with Magic
+and compare it against the schematic using netgen:
+
+```bash
+cd ~/my_chip_designs/rc_filter/align
+./run_pex.sh
+./run_lvs.sh
+```
+
+`run_pex.sh` writes `work/RC_FILTER_0.pex.spice`. `run_lvs.sh` wraps that
+netlist in a subcircuit, ignores parasitic substrate capacitors, and runs
+netgen against `rc_filter_lvs.sp`. The LVS report is written to
+`work/lvs_report.log`.
+
+Current result: **LVS passes** (`Circuits match uniquely`).
+
 ## Notes and caveats
 
 - ALIGN's sky130 resistor generator uses an internal simplified sheet-resistance
   model. Verify the extracted resistance with Magic/Netgen LVS.
 - The 10 pF MIM capacitor is requested as `w=70u l=70u`, which gives roughly
   4900 µm² (~9.8 pF at ~2 fF/µm²).
+- Magic extraction produces parasitic capacitors to `VSUBS` that are not in the
+  schematic. `run_lvs.sh` ignores the plain-capacitor (`c`) device class so
+  they do not cause an LVS mismatch.
 - ALIGN is primarily aimed at transistor-level analog circuits. Passive-only
   layouts like this one are at the edge of what it is designed for, so the
   result should be treated as a starting point, not a finished tape-out layout.

@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 # Run Magic extraction (PEX) on the ALIGN-generated RC_FILTER_0.gds.
 #
-# NOTE: The ALIGN-generated GDS uses abstract PDK layers, so Magic can only
-# extract a partial netlist. The MIM capacitor is usually recognized, but the
-# custom poly resistor is not extracted as a device because its abstract Poly/
-# V0 layers do not map to Sky130 resistor recognition layers. Use this result
-# as a starting point, not a production PEX sign-off.
+# NOTE: The ALIGN-generated GDS uses abstract PDK layers, but Magic extracts
+# the poly resistor as sky130_fd_pr__res_generic_po and the MIM capacitor as
+# sky130_fd_pr__cap_mim_m3_1. Magic also adds parasitic capacitors to the
+# substrate (VSUBS), which are ignored during LVS.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
